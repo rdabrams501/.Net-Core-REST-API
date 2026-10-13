@@ -1,10 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using WebAppAPITest1.Models;
-using System;
-using System.Data.SqlClient;
 using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Data;
+using System.Data.SqlClient;
+using System.Xml.Linq;
+using WebAppAPITest1.Models;
 
 namespace WebAppAPITest1.Controllers
 {
@@ -182,6 +183,117 @@ namespace WebAppAPITest1.Controllers
                 return BadRequest(ex.Message);
             }
            
+        }
+
+        //Get based on three parameters. Returns a left join of courses and staff.
+        [HttpGet]
+        [Route("/Advanced/{courseName}/{staffName}/{stuCount}")]
+        public async Task<IActionResult> GetCourseAndStaffViaName(string courseName = "a", string staffName = "a", int stuCount = 0000)
+        {
+            try
+            {
+                using var conn = new SqlConnection(connectionString);
+                conn.Open();
+
+                if (courseName.Length <= 1 && staffName.Length > 1 && stuCount != 0000)
+                {
+                    var command = new SqlCommand($"SELECT courses.*, staff.Name as Staffer, staff.Title as Position, staff.Status from courses LEFT JOIN staff ON courses.staff_id = staff.staff_id where staff.name LIKE '%{staffName}%' AND courses.STU_Count >= {stuCount}", conn);
+                    using SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        CourseAndStaff courseAndStaff = new CourseAndStaff(reader.GetInt32(0), (string)reader["NAME"], reader.GetInt32(2), reader.GetInt32(3), reader.GetDateTime(4), reader.GetDateTime(5), (string)reader["NOTES"], (string)reader["Staffer"], (string)reader["Position"], (string)reader["Status"]);
+
+                        //Console.WriteLine((string)reader["NAME"]);
+
+                        listCoursesAndStaff.Add(courseAndStaff);
+                    }
+                }
+                else if (staffName.Length <= 1 && courseName.Length > 1 && stuCount != 0000)
+                {
+                    var command = new SqlCommand($"SELECT courses.*, staff.Name as Staffer, staff.Title as Position, staff.Status from courses LEFT JOIN staff ON courses.staff_id = staff.staff_id where courses.name LIKE '%{courseName}%' AND courses.STU_Count >= {stuCount}", conn);
+                    using SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        CourseAndStaff courseAndStaff = new CourseAndStaff(reader.GetInt32(0), (string)reader["NAME"], reader.GetInt32(2), reader.GetInt32(3), reader.GetDateTime(4), reader.GetDateTime(5), (string)reader["NOTES"], (string)reader["Staffer"], (string)reader["Position"], (string)reader["Status"]);
+
+                        //Console.WriteLine((string)reader["NAME"]);
+
+                        listCoursesAndStaff.Add(courseAndStaff);
+                    }
+                }
+                else if (stuCount == 0000 && staffName.Length > 1 && courseName.Length > 1)
+                {
+                    var command = new SqlCommand($"SELECT courses.*, staff.Name as Staffer, staff.Title as Position, staff.Status from courses LEFT JOIN staff ON courses.staff_id = staff.staff_id where courses.name LIKE '%{courseName}%' AND staff.name LIKE '%{staffName}%'", conn);
+                    using SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        CourseAndStaff courseAndStaff = new CourseAndStaff(reader.GetInt32(0), (string)reader["NAME"], reader.GetInt32(2), reader.GetInt32(3), reader.GetDateTime(4), reader.GetDateTime(5), (string)reader["NOTES"], (string)reader["Staffer"], (string)reader["Position"], (string)reader["Status"]);
+
+                        //Console.WriteLine((string)reader["NAME"]);
+
+                        listCoursesAndStaff.Add(courseAndStaff);
+                    }
+                }
+                else if (courseName.Length <= 1 && stuCount == 0000 && staffName.Length > 1)
+                {
+                    var command = new SqlCommand($"SELECT courses.*, staff.Name as Staffer, staff.Title as Position, staff.Status from courses LEFT JOIN staff ON courses.staff_id = staff.staff_id where staff.name LIKE '%{staffName}%'", conn);
+                    using SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        CourseAndStaff courseAndStaff = new CourseAndStaff(reader.GetInt32(0), (string)reader["NAME"], reader.GetInt32(2), reader.GetInt32(3), reader.GetDateTime(4), reader.GetDateTime(5), (string)reader["NOTES"], (string)reader["Staffer"], (string)reader["Position"], (string)reader["Status"]);
+
+                        //Console.WriteLine((string)reader["NAME"]);
+
+                        listCoursesAndStaff.Add(courseAndStaff);
+                    }
+                }
+                else if (courseName.Length <= 1 && staffName.Length <= 1 && stuCount != 0000)
+                {
+                    var command = new SqlCommand($"SELECT courses.*, staff.Name as Staffer, staff.Title as Position, staff.Status from courses LEFT JOIN staff ON courses.staff_id = staff.staff_id where courses.STU_Count >= {stuCount}", conn);
+                    using SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        CourseAndStaff courseAndStaff = new CourseAndStaff(reader.GetInt32(0), (string)reader["NAME"], reader.GetInt32(2), reader.GetInt32(3), reader.GetDateTime(4), reader.GetDateTime(5), (string)reader["NOTES"], (string)reader["Staffer"], (string)reader["Position"], (string)reader["Status"]);
+
+                        //Console.WriteLine((string)reader["NAME"]);
+
+                        listCoursesAndStaff.Add(courseAndStaff);
+                    }
+                }
+                else if (staffName.Length <= 1 && stuCount == 0000 && courseName.Length > 1)
+                {
+                    var command = new SqlCommand($"SELECT courses.*, staff.Name as Staffer, staff.Title as Position, staff.Status from courses LEFT JOIN staff ON courses.staff_id = staff.staff_id where courses.name LIKE '%{courseName}%'", conn);
+                    using SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        CourseAndStaff courseAndStaff = new CourseAndStaff(reader.GetInt32(0), (string)reader["NAME"], reader.GetInt32(2), reader.GetInt32(3), reader.GetDateTime(4), reader.GetDateTime(5), (string)reader["NOTES"], (string)reader["Staffer"], (string)reader["Position"], (string)reader["Status"]);
+
+                        //Console.WriteLine((string)reader["NAME"]);
+
+                        listCoursesAndStaff.Add(courseAndStaff);
+                    }
+                }
+                else
+                {
+                    var command = new SqlCommand($"SELECT courses.*, staff.Name as Staffer, staff.Title as Position, staff.Status from courses LEFT JOIN staff ON courses.staff_id = staff.staff_id where courses.name LIKE '%{courseName}%' AND staff.name LIKE '%{staffName}%' AND courses.STU_Count >= {stuCount}", conn);
+                    using SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        CourseAndStaff courseAndStaff = new CourseAndStaff(reader.GetInt32(0), (string)reader["NAME"], reader.GetInt32(2), reader.GetInt32(3), reader.GetDateTime(4), reader.GetDateTime(5), (string)reader["NOTES"], (string)reader["Staffer"], (string)reader["Position"], (string)reader["Status"]);
+
+                        //Console.WriteLine((string)reader["NAME"]);
+
+                        listCoursesAndStaff.Add(courseAndStaff);
+                    }
+                }
+
+                return Ok(listCoursesAndStaff);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
     }
 }
